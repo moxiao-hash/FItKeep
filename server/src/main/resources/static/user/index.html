@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitKeep - 首页</title>
+<link rel="stylesheet" href="./css/bootstrap.min.css">
+<link rel="stylesheet" href="./css/bootstrap-icons.css">
+<style>
+  :root { --primary:#FF6B35; --secondary:#2EC4B6; --dark:#1A1A2E; --bg:#F8F9FA; --card-bg: #FFFFFF; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter','PingFang SC','Microsoft YaHei',sans-serif; background:var(--bg); color: var(--dark); padding-bottom: 20px; line-height: 1.6; }
+  
+  .page-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .topbar {
+    background: var(--dark);
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  .topbar .content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .topbar .brand { color:white; font-size:24px; font-weight:900; display:flex; align-items:center; gap:10px; text-decoration: none; }
+  .topbar .brand i { color:var(--primary); }
+  
+  .top-nav {
+    display: flex;
+    gap: 30px;
+  }
+  .top-nav a {
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: 0.3s;
+  }
+  .top-nav a:hover, .top-nav a.active { color: var(--primary); }
+
+  .avatar-circle {
+    width:40px; height:40px; background:linear-gradient(135deg,var(--primary),#FF9A5C);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:white; font-size:16px; font-weight:700; cursor:pointer;
+    border: 2px solid rgba(255,255,255,0.2);
+  }
+
+  .fk-carousel-wrap { position: relative; height: 420px; overflow: hidden; margin-bottom: 40px; border-radius: 0 0 40px 40px; background: #eee; }
+  .fk-carousel-inner { display: flex; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); height: 100%; }
+  .fk-carousel-item { flex: 0 0 100%; height: 100%; position: relative; display: block; }
+  .fk-carousel-item img { width: 100%; height: 100%; object-fit: cover; object-position: center; opacity: 1.0; transition: 0.5s; }
+  .fk-carousel-caption { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5)); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; padding: 0 20px; z-index: 10; }
+  .fk-carousel-caption h2 { font-size: 38px; font-weight: 900; text-shadow: 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 12px; }
+  .fk-carousel-caption p { font-size: 18px; color: rgba(255,255,255,0.9); text-shadow: 0 1px 5px rgba(0,0,0,0.5); }
+  .carousel-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 20; }
+  .carousel-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); border:none; cursor: pointer; transition: 0.3s; }
+  .carousel-dot.active { width: 24px; border-radius: 4px; background: var(--primary); }
+  
+  .stats-row { display:flex; gap:20px; }
+  .stat-card {
+    background:rgba(255,255,255,0.1); border-radius:16px; padding:20px;
+    min-width: 160px;
+    text-align:center; border:1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+  }
+  .stat-card .num { font-size:32px; font-weight:900; color:var(--primary); }
+  .stat-card .label { font-size:14px; color:rgba(255,255,255,0.6); margin-top:4px; }
+
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-top: -60px;
+  }
+
+  .section { 
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    margin-bottom: 25px;
+  }
+  .section-title { 
+    font-size:20px; font-weight:800; color:var(--dark); margin-bottom:20px; 
+    display:flex; align-items:center; justify-content:space-between; 
+  }
+  .section-title i { color:var(--primary); margin-right: 10px; }
+  .section-title a { font-size:14px; color:var(--primary); text-decoration:none; font-weight:600; }
+
+  .checkin-card {
+    background: linear-gradient(135deg, #FFF0EB 0%, #FFFFFF 100%);
+    border-radius:16px; padding:25px;
+    display:flex; align-items:center; justify-content:space-between;
+    border: 1px solid #FFE4DB;
+  }
+  .checkin-card .info h3 { font-size:18px; font-weight:800; color:var(--dark); margin-bottom:5px; }
+  .checkin-card .info p { font-size:14px; color:#666; }
+  
+  .btn-checkin {
+    padding:12px 28px;
+    background:linear-gradient(135deg, var(--primary), #FF9A5C);
+    border:none; border-radius:12px; color:white;
+    font-size:15px; font-weight:800; cursor:pointer;
+    box-shadow:0 4px 16px rgba(255,107,53,0.3); transition: 0.3s;
+  }
+  .btn-checkin:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(255,107,53,0.4); }
+  .btn-checkin.done { background:#2EC4B6; box-shadow:none; cursor: default; }
+
+  .course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  .course-card {
+    background:white; border-radius:16px;
+    overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.05);
+    transition: 0.3s;
+  }
+  .course-card:hover { transform:translateY(-5px); box-shadow:0 10px 25px rgba(0,0,0,0.1); }
+  .course-thumb { height:130px; display:flex; align-items:center; justify-content:center; font-size:48px; position: relative; }
+  .course-info { padding:15px; }
+  .course-info h4 { font-size:15px; font-weight:800; color:var(--dark); margin-bottom:10px; height: 42px; overflow: hidden; }
+  
+  .badge-tag { 
+    padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; 
+    background:#FFF0EB; color:var(--primary); margin-right: 5px;
+  }
+  .badge-tag.teal { background:#E8FAF9; color:var(--secondary); }
+
+  .post-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    gap: 15px;
+  }
+  .post-item:last-child { border-bottom: none; }
+  .post-avatar-small {
+    width:40px; height:40px; border-radius:10px;
+    background: var(--bg); display:flex; align-items:center; justify-content:center;
+    color:var(--primary); font-size:18px; font-weight:700; flex-shrink:0;
+  }
+  .post-right { flex: 1; }
+  .post-user { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+  .post-content { font-size: 14px; color: #555; margin-bottom: 8px; }
+  .post-meta { font-size: 12px; color: #999; display: flex; gap: 15px; }
+
+  .quick-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+  .quick-card {
+    padding: 20px;
+    border-radius: 16px;
+    text-align: center;
+    text-decoration: none;
+    color: white;
+    transition: 0.3s;
+  }
+  .quick-card:hover { transform: translateY(-3px); opacity: 0.9; }
+  .q-orange { background: var(--primary); }
+  .q-teal { background: var(--secondary); }
+  .q-blue { background: #4A90D9; }
+  .q-red { background: #E74C3C; }
+  .quick-card i { font-size: 24px; display: block; margin-bottom: 8px; }
+  .quick-card span { font-weight: 700; }
+
+  .bottom-nav { display: none; }
+
+  @media (max-width: 768px) {
+    .top-nav { display: none; }
+    .layout-grid { grid-template-columns: 1fr; margin-top: 20px; }
+    .bottom-nav { 
+      display: flex; position: fixed; bottom: 0; left: 0; right: 0; 
+      background: white; border-top: 1px solid #eee; justify-content: space-around;
+      padding: 10px 0; z-index: 1000;
+    }
+    .nav-item { text-align: center; color: #999; text-decoration: none; font-size: 12px; }
+    .nav-item.active { color: var(--primary); }
+    .nav-item i { font-size: 20px; display: block; }
+    body { padding-bottom: 70px; }
+    .hero { border-radius: 0; padding: 40px 0; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="page-container content">
+    <a href="index.html" class="brand"><i class="bi bi-lightning-charge-fill"></i> FitKeep</a>
+    <div class="top-nav">
+      <a href="index.html" class="active">首页</a>
+      <a href="courses.html">课程</a>
+      <a href="checkin.html">打卡</a>
+      <a href="community.html">社区</a>
+      <a href="pomodoro.html">番茄钟</a>
+    </div>
+    <div class="avatar-circle" id="avatarEl" onclick="location.href='profile.html'">U</div>
+  </div>
+</div>
+
+<div class="fk-carousel-wrap">
+  <div class="fk-carousel-inner" id="carouselInner">
+    <div class="fk-carousel-item">
+      <img src="img/banner1.png" alt="Fitness Banner 1">
+      <div class="fk-carousel-caption">
+        <h2 id="greetMsg">今天也要加油！</h2>
+        <p id="greetSub">坚持训练，成就更好的自己</p>
+      </div>
+    </div>
+    <div class="fk-carousel-item">
+      <img src="img/banner2.png" alt="Fitness Banner 2">
+      <div class="fk-carousel-caption">
+        <h2>释放你的潜能</h2>
+        <p>每一次流汗都是对未来的投资</p>
+      </div>
+    </div>
+    <div class="fk-carousel-item">
+      <img src="img/banner3.png" alt="Fitness Banner 3">
+      <div class="fk-carousel-caption">
+        <h2>身心平衡之美</h2>
+        <p>在宁静中寻找力量，开启健康新纪元</p>
+      </div>
+    </div>
+  </div>
+  <div class="carousel-dots" id="carouselDots">
+    <button class="carousel-dot active" onclick="gotoSlide(0)"></button>
+    <button class="carousel-dot" onclick="gotoSlide(1)"></button>
+    <button class="carousel-dot" onclick="gotoSlide(2)"></button>
+  </div>
+</div>
+
+<div class="page-container">
+  <div class="layout-grid">
+    <div class="main-content">
+      <div class="section">
+        <div class="section-title"><div class="left"><i class="bi bi-fire"></i>今日打卡</div></div>
+        <div class="checkin-card">
+          <div class="info">
+            <h3 id="checkinTitle">记录今天的训练</h3>
+            <p id="checkinSub">每天坚持，积累改变</p>
+          </div>
+          <button class="btn-checkin" id="checkinBtn" onclick="goCheckIn()">去打卡</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          <div class="left"><i class="bi bi-play-circle-fill"></i>推荐课程</div>
+          <a href="courses.html">查看全部</a>
+        </div>
+        <div class="course-grid" id="courseList"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          <div class="left"><i class="bi bi-chat-square-text-fill"></i>社区动态</div>
+          <a href="community.html">查看全部</a>
+        </div>
+        <div id="postList"></div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="section">
+        <div class="section-title"><div class="left"><i class="bi bi-grid-3x3-gap-fill"></i>快捷入口</div></div>
+        <div class="quick-links">
+          <a class="quick-card q-orange" href="courses.html"><i class="bi bi-play-circle-fill"></i><span>课程中心</span></a>
+          <a class="quick-card q-teal" href="checkin.html"><i class="bi bi-calendar2-check-fill"></i><span>打卡任务</span></a>
+          <a class="quick-card q-blue" href="community.html"><i class="bi bi-people-fill"></i><span>活跃社区</span></a>
+          <a class="quick-card q-red" href="pomodoro.html"><i class="bi bi-stopwatch-fill"></i><span>番茄专注</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a class="nav-item active" href="index.html"><i class="bi bi-house-fill"></i><span>首页</span></a>
+  <a class="nav-item" href="courses.html"><i class="bi bi-play-circle"></i><span>课程</span></a>
+  <a class="nav-item" href="checkin.html"><i class="bi bi-calendar2-check"></i><span>打卡</span></a>
+  <a class="nav-item" href="community.html"><i class="bi bi-people"></i><span>社区</span></a>
+  <a class="nav-item" href="pomodoro.html"><i class="bi bi-stopwatch"></i><span>番茄钟</span></a>
+</nav>
+
+<script>
+  const token = localStorage.getItem('token');
+  const nickname = localStorage.getItem('nickname') || 'U';
+  const userId = localStorage.getItem('userId');
+  if (!token) { window.location.href = '/user/login.html'; }
+  if (localStorage.getItem('role') == 1) { window.location.href = '/admin/index.html'; }
+
+  document.getElementById('avatarEl').textContent = nickname.charAt(0).toUpperCase();
+  const h = new Date().getHours();
+  const greet = h < 12 ? '早上好' : h < 18 ? '下午好' : '晚上好';
+  document.getElementById('greetMsg').textContent = greet + '，' + nickname + '！';
+
+  const catEmoji = {cardio:'🏃',strength:'💪',yoga:'🧘',hiit:'🔥',default:'🏋️'};
+  const diffLabel = {1:'入门',2:'进阶',3:'高阶'};
+  const catBg = {cardio:'#FFF0F0',strength:'#FFF8F0',yoga:'#F0FFF8',hiit:'#FFF0EB',default:'#F0F4FF'};
+
+  async function api(url, opts={}) {
+    const res = await fetch(url, { headers:{'Authorization':'Bearer '+token, 'Content-Type':'application/json'}, ...opts });
+    return res.json();
+  }
+
+  async function loadStats() {
+    try {
+      const [ck, pm] = await Promise.all([
+        api('/api/checkin/status'),
+        api('/api/pomodoro/stats')
+      ]);
+      if (ck.code===200) {
+        const sd = document.getElementById('statDays');
+        if (sd) sd.textContent = ck.data.totalDays;
+        if (ck.data.checkedToday) {
+          document.getElementById('checkinTitle').textContent = '今日已完成打卡 ✓';
+          document.getElementById('checkinSub').textContent = '继续保持，明天见！';
+          const btn = document.getElementById('checkinBtn');
+          btn.textContent = '已打卡'; btn.classList.add('done');
+        }
+      }
+      if (pm.code===200) {
+        const sp = document.getElementById('statPomodoro');
+        if (sp) sp.textContent = pm.data.totalCycles;
+      }
+    } catch(e){}
+  }
+
+  async function loadCourses() {
+    try {
+      const data = await api('/api/courses/list');
+      if (data.code!==200) return;
+      const el = document.getElementById('courseList');
+      el.innerHTML = data.data.slice(0,5).map(c => `
+        <div class="course-card" onclick="location.href='course-detail.html?id=${c.id}'">
+          <div class="course-thumb" style="background:${c.cover ? `url('${c.cover}') center/cover` : catBg[c.category]||catBg.default}">
+            ${!c.cover ? (catEmoji[c.category]||catEmoji.default) : ''}
+          </div>
+          <div class="course-info">
+            <h4>${c.title}</h4>
+            <span class="badge-tag">${c.category}</span>
+            <span class="badge-tag teal">${diffLabel[c.difficulty]||'入门'}</span>
+          </div>
+        </div>`).join('');
+    } catch(e){}
+  }
+
+  async function loadPosts() {
+    try {
+      const data = await api('/api/community/posts');
+      if (data.code!==200) return;
+      const el = document.getElementById('postList');
+      el.innerHTML = data.data.slice(0,3).map(p => `
+        <div class="post-item" onclick="location.href='community.html'">
+          <div class="post-avatar-small">${(p.username||'?').charAt(0).toUpperCase()}</div>
+          <div class="post-right">
+            <div class="post-user">${p.username||'匿名'}</div>
+            <div class="post-content">${p.content||''}</div>
+            <div class="post-meta">
+              <span><i class="bi bi-clock"></i> ${formatTime(p.createTime)}</span>
+              <span><i class="bi bi-heart"></i> ${p.likeCount||0}</span>
+              <span><i class="bi bi-chat"></i> ${p.commentCount||0}</span>
+            </div>
+          </div>
+        </div>`).join('');
+    } catch(e){}
+  }
+
+  function goCheckIn() { window.location.href='checkin.html'; }
+
+  function formatTime(t) {
+    if (!t) return '';
+    try { return new Date(t).toLocaleDateString('zh-CN',{month:'short',day:'numeric'}); } catch(e){ return ''; }
+  }
+
+  loadStats(); loadCourses(); loadPosts();
+  
+  // Carousel Logic
+  let curSlide = 0;
+  const slideCount = 3;
+  window.gotoSlide = function(n) {
+    curSlide = n;
+    const inner = document.getElementById('carouselInner');
+    inner.style.transform = `translateX(-${n * 100}%)`;
+    document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === n));
+  }
+  setInterval(() => {
+    curSlide = (curSlide + 1) % slideCount;
+    window.gotoSlide(curSlide);
+  }, 5000);
+</script>
+</body>
+</html>

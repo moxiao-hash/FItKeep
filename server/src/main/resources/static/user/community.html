@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitKeep - 社区交流</title>
+<link rel="stylesheet" href="./css/bootstrap.min.css">
+<link rel="stylesheet" href="./css/bootstrap-icons.css">
+<style>
+  :root { --primary:#FF6B35; --secondary:#2EC4B6; --dark:#1A1A2E; --bg:#F8F9FA; --card-bg: #FFFFFF; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter','PingFang SC','Microsoft YaHei',sans-serif; background:var(--bg); color: var(--dark); line-height: 1.6; }
+  
+  .page-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+  .topbar {
+    background: var(--dark); padding: 15px 0; position: sticky; top: 0; z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  .topbar .content { display: flex; justify-content: space-between; align-items: center; }
+  .topbar .brand { color:white; font-size:24px; font-weight:900; display:flex; align-items:center; gap:10px; text-decoration: none; }
+  .topbar .brand i { color:var(--primary); }
+  
+  .top-nav { display: flex; gap: 30px; }
+  .top-nav a { color: rgba(255,255,255,0.8); text-decoration: none; font-weight: 600; font-size: 15px; transition: 0.3s; }
+  .top-nav a:hover, .top-nav a.active { color: var(--primary); }
+
+  .avatar-circle {
+    width:40px; height:40px; background:linear-gradient(135deg,var(--primary),#FF9A5C);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:white; font-size:16px; font-weight:700; cursor:pointer;
+  }
+
+  .community-header { background: white; padding: 40px 0; border-bottom: 1px solid #eee; margin-bottom: 30px; }
+  .community-header h1 { font-size: 32px; font-weight: 900; margin-bottom: 10px; }
+  .community-header p { color: #666; font-size: 16px; }
+
+  .layout-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+
+  .post-card { 
+    background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s;
+  }
+  .post-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+  .post-avatar {
+    width: 45px; height: 45px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--secondary), #20A69E);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 18px; font-weight: 700;
+  }
+  .post-user-info h4 { font-size: 16px; font-weight: 700; margin: 0; }
+  .post-user-info span { font-size: 12px; color: #999; }
+
+  .post-content { font-size: 15px; color: #444; margin-bottom: 20px; white-space: pre-wrap; }
+  
+  .post-actions { display: flex; gap: 20px; border-top: 1px solid #f0f0f0; padding-top: 15px; }
+  .act-btn { 
+    display: flex; align-items: center; gap: 6px; font-size: 14px; color: #888; 
+    cursor: pointer; background: none; border: none; transition: 0.3s;
+  }
+  .act-btn:hover { color: var(--primary); }
+  .act-btn i { font-size: 18px; }
+
+  .sidebar-box { 
+    background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+  }
+  .sidebar-box h3 { font-size: 18px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .sidebar-box h3 i { color: var(--primary); }
+
+  .btn-publish {
+    width: 100%; padding: 15px; background: var(--primary); color: white;
+    border: none; border-radius: 12px; font-weight: 800; font-size: 16px;
+    cursor: pointer; box-shadow: 0 4px 15px rgba(255,107,53,0.3); transition: 0.3s;
+    margin-bottom: 20px;
+  }
+  .btn-publish:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,107,53,0.4); }
+
+  /* Post Modal */
+  .modal-overlay { 
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000;
+    display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px);
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-content { 
+    background: white; width: 100%; max-width: 500px; border-radius: 24px; padding: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+  }
+  .modal-content h2 { font-size: 22px; font-weight: 900; margin-bottom: 20px; }
+  .post-textarea {
+    width: 100%; height: 150px; padding: 15px; border: 2px solid #eee;
+    border-radius: 12px; font-family: inherit; font-size: 15px; outline: none;
+    margin-bottom: 20px; transition: 0.3s; resize: none;
+  }
+  .post-textarea:focus { border-color: var(--primary); }
+  .modal-btns { display: flex; gap: 15px; }
+  .btn-cancel { flex: 1; padding: 12px; border: 2px solid #eee; background: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+  .btn-submit { flex: 2; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+
+  @media (max-width: 768px) {
+    .layout-grid { grid-template-columns: 1fr; }
+    .sidebar { order: -1; }
+    .top-nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="page-container content">
+    <a href="index.html" class="brand"><i class="bi bi-lightning-charge-fill"></i> FitKeep</a>
+    <div class="top-nav">
+      <a href="index.html">首页</a>
+      <a href="courses.html">课程</a>
+      <a href="checkin.html">打卡</a>
+      <a href="community.html" class="active">社区</a>
+      <a href="pomodoro.html">番茄钟</a>
+    </div>
+    <div class="avatar-circle" id="avatarEl" onclick="location.href='profile.html'">U</div>
+  </div>
+</div>
+
+<div class="community-header">
+  <div class="page-container">
+    <h1>活力社区</h1>
+    <p>分享你的训练心得，发现更多运动灵感</p>
+  </div>
+</div>
+
+<div class="page-container">
+  <div class="layout-grid">
+    <div class="main-content" id="postList">
+      <!-- Posts render here -->
+    </div>
+
+    <div class="sidebar">
+      <button class="btn-publish" onclick="showModal()"><i class="bi bi-plus-lg"></i> 发布动态</button>
+      <div class="sidebar-box">
+        <h3><i class="bi bi-megaphone"></i> 社区公告</h3>
+        <p style="font-size: 14px; color: #666;">欢迎来到 FitKeep 社区！请文明交流，共同进步。</p>
+      </div>
+      <div class="sidebar-box">
+        <h3><i class="bi bi-graph-up"></i> 热门话题</h3>
+        <ul style="list-style: none; font-size: 14px;">
+          <li style="margin-bottom: 10px; color: var(--primary); cursor: pointer;"># 21天打卡挑战</li>
+          <li style="margin-bottom: 10px; color: var(--primary); cursor: pointer;"># 我的减脂食谱</li>
+          <li style="color: var(--primary); cursor: pointer;"># 番茄钟学习法</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="postModal">
+  <div class="modal-content">
+    <h2>分享动态</h2>
+    <textarea class="post-textarea" id="postContent" placeholder="说点什么吧..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="hideModal()">取消</button>
+      <button class="btn-submit" onclick="submitPost()">发布</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const token = localStorage.getItem('token');
+  const nickname = localStorage.getItem('nickname') || 'U';
+  if (!token) window.location.href = 'login.html';
+
+  document.getElementById('avatarEl').textContent = nickname.charAt(0).toUpperCase();
+
+  async function api(url, opts={}) {
+    const res = await fetch(url, {
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      ...opts
+    });
+    return res.json();
+  }
+
+  async function loadPosts() {
+    try {
+      const data = await api('/api/community/posts');
+      if (data.code !== 200) return;
+      const el = document.getElementById('postList');
+      el.innerHTML = data.data.map(p => `
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-avatar">${(p.username || '?').charAt(0).toUpperCase()}</div>
+            <div class="post-user-info">
+              <h4>${p.username || '匿名用户'}</h4>
+              <span>${new Date(p.createTime).toLocaleString()}</span>
+            </div>
+          </div>
+          <div class="post-content">${p.content}</div>
+          <div class="post-actions">
+            <button class="act-btn" onclick="likePost(${p.id})"><i class="bi bi-heart"></i> ${p.likeCount || 0}</button>
+          </div>
+        </div>
+      `).join('');
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function showModal() { document.getElementById('postModal').classList.add('show'); }
+  function hideModal() { document.getElementById('postModal').classList.remove('show'); }
+
+  async function submitPost() {
+    const content = document.getElementById('postContent').value.trim();
+    if (!content) return alert('请输入内容');
+    try {
+      const res = await api('/api/community/post', {
+        method: 'POST',
+        body: JSON.stringify({ content, title: '', imageUrl: '' })
+      });
+      if (res.code === 200) {
+        document.getElementById('postContent').value = '';
+        hideModal();
+        loadPosts();
+      } else {
+        alert(res.msg || '发布失败');
+      }
+    } catch (e) { alert('发布失败'); }
+  }
+
+  async function likePost(id) {
+    try {
+      const res = await api('/api/community/post/' + id + '/like', { method: 'POST' });
+      if (res.code === 200) loadPosts();
+    } catch (e) {}
+  }
+
+  loadPosts();
+</script>
+</body>
+</html>

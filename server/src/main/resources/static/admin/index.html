@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitKeep - 管理后台</title>
+<link rel="stylesheet" href="./css/bootstrap.min.css">
+<link rel="stylesheet" href="./css/bootstrap-icons.css">
+<style>
+  :root{--primary:#FF6B35;--dark:#1A1A2E;--bg:#F0F2F5;--sidebar:#1A1A2E;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);display:flex;min-height:100vh;}
+  .sidebar{width:220px;background:var(--sidebar);min-height:100vh;flex-shrink:0;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;}
+  .sb-logo{padding:24px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.08);}
+  .sb-logo i{color:var(--primary);font-size:24px;}
+  .sb-logo span{color:white;font-size:18px;font-weight:900;}
+  .sb-menu{padding:16px 0;flex:1;}
+  .sb-item{display:flex;align-items:center;gap:12px;padding:13px 20px;color:rgba(255,255,255,0.55);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;text-decoration:none;}
+  .sb-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);}
+  .sb-item.active{background:rgba(255,107,53,0.15);color:var(--primary);border-right:3px solid var(--primary);}
+  .sb-item i{font-size:18px;width:20px;text-align:center;}
+  .sb-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.08);}
+  .sb-logout{
+    width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 12px;border:1px solid rgba(255,255,255,0.22);border-radius:10px;
+    background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);font-size:13px;font-weight:700;
+    cursor:pointer;transition:all 0.2s;
+  }
+  .sb-logout:hover{background:#ff6b6b;border-color:#ff6b6b;color:white;}
+  .main{margin-left:220px;flex:1;padding:28px;}
+  .page-title{font-size:22px;font-weight:900;color:var(--dark);margin-bottom:24px;}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+  .stat-card{background:white;border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,0.06);}
+  .stat-card .icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;}
+  .stat-card .num{font-size:32px;font-weight:900;color:var(--dark);}
+  .stat-card .lbl{font-size:13px;color:#aaa;margin-top:3px;}
+  .ic-orange{background:#FFF0EB;color:var(--primary);}
+  .ic-teal{background:#E8FAF9;color:#2EC4B6;}
+  .ic-blue{background:#EBF3FF;color:#4A90D9;}
+  .ic-red{background:#FFEBEB;color:#E74C3C;}
+  .content-card{background:white;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:24px;}
+  .card-header{padding:18px 20px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;justify-content:space-between;}
+  .card-header h3{font-size:16px;font-weight:800;color:var(--dark);}
+  .card-body{padding:0;}
+  table{width:100%;border-collapse:collapse;}
+  th{padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:#aaa;text-transform:uppercase;background:#fafafa;}
+  td{padding:13px 16px;font-size:14px;color:#555;border-top:1px solid #f5f5f5;vertical-align:middle;}
+  tr:hover td{background:#fafff9;}
+  .badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+  .badge-green{background:#E8FAF9;color:#2EC4B6;}
+  .badge-red{background:#FFEBEB;color:#E74C3C;}
+  .badge-orange{background:#FFF0EB;color:var(--primary);}
+  .badge-grey{background:#F5F5F5;color:#888;}
+  .btn-sm{padding:5px 12px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+  .btn-danger{background:#FFEBEB;color:#E74C3C;}
+  .btn-danger:hover{background:#E74C3C;color:white;}
+  .btn-warn{background:#FFF0EB;color:var(--primary);}
+  .btn-warn:hover{background:var(--primary);color:white;}
+  .btn-primary-sm{background:linear-gradient(135deg,var(--primary),#FF9A5C);color:white;padding:8px 18px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;}
+  .section-tabs{display:flex;gap:8px;}
+  .stab{padding:7px 16px;border-radius:10px;border:none;background:#f5f5f5;color:#888;font-size:13px;font-weight:700;cursor:pointer;}
+  .stab.active{background:var(--primary);color:white;}
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:center;justify-content:center;}
+  .modal-bg.show{display:flex;}
+  .modal-box{background:white;border-radius:24px;padding:32px;width:550px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);}
+  .modal-title{font-size:22px;font-weight:900;color:var(--dark);margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;}
+  .modal-close{background:#f5f5f5;border:none;width:36px;height:36px;border-radius:50%;color:#aaa;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;}
+  .modal-close:hover{background:#eee;color:#333;}
+  .form-group{margin-bottom:20px;}
+  .v-item{background:#f9f9fb;border-radius:12px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+  .v-item-info{flex:1;}
+  .v-item-title{font-weight:700;font-size:14px;color:var(--dark);}
+  .v-item-meta{font-size:12px;color:#aaa;}
+  .btn-v-del{color:#ff6b6b;cursor:pointer;padding:8px;}
+  .form-label{font-size:13px;font-weight:700;color:#555;margin-bottom:8px;display:block;}
+  .form-ctrl{width:100%;padding:10px 14px;border:2px solid #eee;border-radius:10px;font-size:14px;outline:none;font-family:inherit;transition:border 0.2s;}
+  .form-ctrl:focus{border-color:var(--primary);}
+  .btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--primary),#FF9A5C);border:none;border-radius:12px;color:white;font-size:16px;font-weight:800;cursor:pointer;margin-top:10px;box-shadow:0 10px 20px -5px rgba(255,107,53,0.3);transition:0.2s;}
+  .btn-submit:hover{transform:translateY(-2px);box-shadow:0 15px 25px -5px rgba(255,107,53,0.4);}
+  .sec-title{font-size:15px;font-weight:900;color:var(--dark);display:flex;align-items:center;gap:8px;}
+  .sec-title i{color:var(--primary);}
+  .toast{position:fixed;top:20px;right:20px;background:#333;color:white;padding:12px 24px;border-radius:12px;font-size:14px;z-index:9999;display:none;}
+  .empty{text-align:center;padding:40px;color:#ccc;font-size:14px;}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sb-logo"><i class="bi bi-lightning-charge-fill"></i><span>FitKeep 管理</span></div>
+  <div class="sb-menu">
+    <a class="sb-item active" onclick="showSection('dashboard')"><i class="bi bi-speedometer2"></i>仪表盘</a>
+    <a class="sb-item" onclick="showSection('users')"><i class="bi bi-people-fill"></i>用户管理</a>
+    <a class="sb-item" onclick="showSection('courses')"><i class="bi bi-play-circle-fill"></i>课程管理</a>
+    <a class="sb-item" onclick="showSection('posts')"><i class="bi bi-chat-square-text-fill"></i>社区管理</a>
+  </div>
+  <div class="sb-footer"><button class="sb-logout" onclick="logout()"><i class="bi bi-box-arrow-right"></i>退出登录</button></div>
+</div>
+
+<div class="main" id="mainContent"></div>
+<div class="toast" id="toast"></div>
+
+<!-- Course Modal -->
+<div class="modal-bg" id="courseModal">
+  <div class="modal-box">
+    <div class="modal-title"><span id="courseModalTitle">添加课程</span><button class="modal-close" onclick="hideCourseModal()"><i class="bi bi-x"></i></button></div>
+    <input type="hidden" id="courseId">
+    <div class="form-group"><label class="form-label">课程名称</label><input class="form-ctrl" id="cTitle" placeholder="输入课程名称"></div>
+    <div class="form-group"><label class="form-label">课程描述</label><textarea class="form-ctrl" id="cDesc" rows="3" placeholder="输入课程描述"></textarea></div>
+    <div class="form-group"><label class="form-label">课程封面</label><input type="file" class="form-ctrl" id="cCover" accept="image/*" data-old-url=""></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">分类</label><select class="form-ctrl" id="cCat"><option value="cardio">有氧</option><option value="strength">力量</option><option value="yoga">瑜伽</option><option value="hiit">HIIT</option></select></div>
+      <div class="form-group"><label class="form-label">难度</label><select class="form-ctrl" id="cDiff"><option value="1">入门</option><option value="2">进阶</option><option value="3">高阶</option></select></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">课程时长(分钟)</label><input class="form-ctrl" id="cDur" type="number" placeholder="30"></div>
+      <div class="form-group"><label class="form-label">教师名称</label><input class="form-ctrl" id="cTeacher" placeholder="教师姓名"></div>
+    </div>
+    
+    <div style="margin-top:20px; padding-top:20px; border-top:1px solid #eee;">
+      <div class="sec-title" style="margin-bottom:15px;"><i class="bi bi-camera-video-fill"></i> 关联视频</div>
+      <div class="form-group"><label class="form-label">上传视频文件</label><input type="file" class="form-ctrl" id="vAddFile" accept="video/*" onchange="uploadCourseVideo()"></div>
+      <div class="form-group"><label class="form-label">视频播放地址 (URL)</label><input class="form-ctrl" id="vAddUrl" placeholder="上传后自动生成，也可手动填入"></div>
+      <input type="hidden" id="vAddId">
+    </div>
+
+    <button class="btn-submit" onclick="saveCourse()">保存课程和视频</button>
+  </div>
+</div>
+
+<!-- Modals Removed -->
+
+<script src="admin.js"></script>
+<script src="admin2.js"></script>
+</body>
+</html>

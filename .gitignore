@@ -1,0 +1,23 @@
+# Operating-system and editor files
+.DS_Store
+.idea/
+**/.idea/
+*.iml
+
+# Build output
+**/target/
+**/build/
+
+# Local tooling artifacts
+.codex_artifacts/
+.claude/
+
+# Runtime-generated uploads and local database exports
+server/uploads/
+*_dump.sql
+*-dump.sql
+
+# Local environment overrides
+.env
+.env.*
+*.local.properties

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitKeep - 登录</title>
+<link rel="stylesheet" href="./css/bootstrap.min.css">
+<link rel="stylesheet" href="./css/bootstrap-icons.css">
+<style>
+  :root {
+    --primary: #FF6B35;
+    --primary-dark: #E55A26;
+    --secondary: #2EC4B6;
+    --dark: #1A1A2E;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .login-wrap { width: 100%; max-width: 420px; padding: 20px; }
+  .logo { text-align: center; margin-bottom: 36px; }
+  .logo .icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--primary), #FF9A5C);
+    border-radius: 20px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 36px; color: white; margin-bottom: 12px;
+    box-shadow: 0 8px 32px rgba(255,107,53,0.4);
+  }
+  .logo h1 { color: white; font-size: 28px; font-weight: 900; letter-spacing: 1px; }
+  .logo p { color: rgba(255,255,255,0.5); font-size: 14px; margin-top: 4px; }
+  .card {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 36px;
+  }
+  .tabs {
+    display: flex; background: rgba(255,255,255,0.05);
+    border-radius: 12px; padding: 4px; margin-bottom: 28px;
+  }
+  .tab-btn {
+    flex: 1; padding: 10px; border: none; background: transparent;
+    color: rgba(255,255,255,0.5); font-size: 15px; font-weight: 700;
+    border-radius: 10px; cursor: pointer; transition: all 0.3s;
+  }
+  .tab-btn.active { background: var(--primary); color: white; }
+  .form-group { margin-bottom: 18px; }
+  .form-label { color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 600; margin-bottom: 8px; display: block; }
+  .form-ctrl {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white; border-radius: 12px; padding: 12px 16px;
+    font-size: 15px; width: 100%; transition: all 0.3s; outline: none;
+  }
+  .form-ctrl:focus {
+    border-color: var(--primary);
+    background: rgba(255,107,53,0.1);
+    box-shadow: 0 0 0 3px rgba(255,107,53,0.15);
+  }
+  .form-ctrl::placeholder { color: rgba(255,255,255,0.25); }
+  .btn-submit {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--primary), #FF9A5C);
+    border: none; border-radius: 12px;
+    color: white; font-size: 16px; font-weight: 800;
+    cursor: pointer; margin-top: 8px; transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(255,107,53,0.4);
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,107,53,0.5); }
+  .alert-box { padding: 12px 16px; border-radius: 10px; font-size: 14px; margin-bottom: 16px;
+    background: rgba(220,53,69,0.15); border: 1px solid rgba(220,53,69,0.3); color: #ff6b6b; display:none; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+  .admin-link { text-align:center; margin-top:18px; }
+  .admin-link a { color: rgba(255,255,255,0.35); font-size:13px; text-decoration:none; }
+  .admin-link a:hover { color: var(--primary); }
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="logo">
+    <div class="icon"><i class="bi bi-lightning-charge-fill"></i></div>
+    <h1>FitKeep</h1>
+    <p>燃烧卡路里，塑造更好的自己</p>
+  </div>
+  <div class="card">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">登录</button>
+      <button class="tab-btn" onclick="switchTab('register')">注册</button>
+    </div>
+    <div class="alert-box" id="alertBox"></div>
+    <!-- Login -->
+    <div class="tab-pane active" id="loginPane">
+      <div class="form-group">
+        <label class="form-label">用户名</label>
+        <input type="text" class="form-ctrl" id="loginUsername" placeholder="请输入用户名">
+      </div>
+      <div class="form-group">
+        <label class="form-label">密码</label>
+        <input type="password" class="form-ctrl" id="loginPassword" placeholder="请输入密码">
+      </div>
+      <button class="btn-submit" onclick="doLogin()"><i class="bi bi-box-arrow-in-right me-2"></i>登录</button>
+    </div>
+    <!-- Register -->
+    <div class="tab-pane" id="registerPane">
+      <div class="form-group">
+        <label class="form-label">用户名</label>
+        <input type="text" class="form-ctrl" id="regUsername" placeholder="请输入用户名">
+      </div>
+      <div class="form-group">
+        <label class="form-label">昵称</label>
+        <input type="text" class="form-ctrl" id="regNickname" placeholder="请输入昵称">
+      </div>
+      <div class="form-group">
+        <label class="form-label">密码</label>
+        <input type="password" class="form-ctrl" id="regPassword" placeholder="请输入密码">
+      </div>
+      <button class="btn-submit" onclick="doRegister()"><i class="bi bi-person-plus me-2"></i>注册</button>
+    </div>
+  </div>
+  <div class="admin-link"><a href="/admin/index.html">管理后台入口</a></div>
+</div>
+<script>
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+    document.getElementById('loginPane').classList.toggle('active', tab==='login');
+    document.getElementById('registerPane').classList.toggle('active', tab==='register');
+    hideAlert();
+  }
+  function showAlert(msg) {
+    const el = document.getElementById('alertBox');
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function hideAlert() { document.getElementById('alertBox').style.display = 'none'; }
+
+  async function doLogin() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    if (!username || !password) { showAlert('请填写用户名和密码'); return; }
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username, password})
+      });
+      const data = await res.json();
+      if (data.code === 200) {
+        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('userId', data.data.userId);
+        localStorage.setItem('nickname', data.data.nickname);
+        localStorage.setItem('role', data.data.role);
+        if (data.data.role == 1) {
+          window.location.href = '/admin/index.html';
+        } else {
+          window.location.href = '/user/index.html';
+        }
+      } else {
+        showAlert(data.message);
+      }
+    } catch(e) { showAlert('网络错误，请重试'); }
+  }
+
+  async function doRegister() {
+    const username = document.getElementById('regUsername').value.trim();
+    const nickname = document.getElementById('regNickname').value.trim();
+    const password = document.getElementById('regPassword').value.trim();
+    if (!username || !password) { showAlert('请填写必要信息'); return; }
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username, password, nickname})
+      });
+      const data = await res.json();
+      if (data.code === 200) {
+        showAlert('注册成功，请登录');
+        switchTab('login');
+      } else {
+        showAlert(data.message);
+      }
+    } catch(e) { showAlert('网络错误，请重试'); }
+  }
+
+  document.addEventListener('keydown', e => { if(e.key==='Enter') { if(document.getElementById('loginPane').classList.contains('active')) doLogin(); else doRegister(); }});
+
+  // Already logged in
+  if (localStorage.getItem('token')) {
+    if (localStorage.getItem('role') == 1) {
+      window.location.href = '/admin/index.html';
+    } else {
+      window.location.href = '/user/index.html';
+    }
+  }
+</script>
+</body>
+</html>

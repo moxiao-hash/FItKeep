@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitKeep - 个人中心</title>
+<link rel="stylesheet" href="./css/bootstrap.min.css">
+<link rel="stylesheet" href="./css/bootstrap-icons.css">
+<style>
+  :root { --primary:#FF6B35; --secondary:#2EC4B6; --dark:#1A1A2E; --bg:#F8F9FA; --card-bg: #FFFFFF; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter','PingFang SC','Microsoft YaHei',sans-serif; background:var(--bg); color: var(--dark); line-height: 1.6; }
+  
+  .page-container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+
+  .topbar {
+    background: var(--dark); padding: 15px 0; position: sticky; top: 0; z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  .topbar .content { display: flex; justify-content: space-between; align-items: center; }
+  .topbar .brand { color:white; font-size:24px; font-weight:900; display:flex; align-items:center; gap:10px; text-decoration: none; }
+  .topbar .brand i { color:var(--primary); }
+  
+  .top-nav { display: flex; gap: 30px; }
+  .top-nav a { color: rgba(255,255,255,0.8); text-decoration: none; font-weight: 600; font-size: 15px; transition: 0.3s; }
+  .top-nav a:hover, .top-nav a.active { color: var(--primary); }
+
+  .profile-header {
+    background: white; padding: 60px 0; margin-bottom: 30px; border-radius: 0 0 30px 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;
+  }
+  .profile-avatar {
+    width: 100px; height: 100px; border-radius: 30px;
+    background: linear-gradient(135deg, var(--primary), #FF9A5C);
+    margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 40px; font-weight: 900;
+    box-shadow: 0 10px 25px rgba(255,107,53,0.3);
+  }
+  .profile-name { font-size: 28px; font-weight: 900; margin-bottom: 5px; }
+  .profile-sub { color: #888; font-size: 14px; margin-bottom: 25px; }
+
+  .stats-grid { display: flex; justify-content: center; gap: 40px; }
+  .stat-item h3 { font-size: 24px; font-weight: 900; color: var(--primary); margin: 0; }
+  .stat-item span { font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 1px; }
+
+  .profile-section { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+  .profile-section h2 { font-size: 18px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .profile-section h2 i { color: var(--primary); }
+
+  .menu-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 15px 0; border-bottom: 1px solid #f5f5f5; text-decoration: none; color: inherit;
+    transition: 0.2s; cursor: pointer;
+  }
+  .menu-item:last-child { border-bottom: none; }
+  .menu-item:hover { color: var(--primary); }
+  .menu-item .left { display: flex; align-items: center; gap: 15px; }
+  .menu-item .left i { font-size: 20px; color: #666; }
+  .menu-item .right i { color: #ccc; }
+
+  .btn-logout {
+    width: 100%; padding: 15px; background: #FFF0F0; color: #E74C3C;
+    border: none; border-radius: 12px; font-weight: 700; cursor: pointer;
+    margin-top: 20px; transition: 0.3s;
+  }
+  .btn-logout:hover { background: #fee2e2; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="page-container content">
+    <a href="index.html" class="brand"><i class="bi bi-lightning-charge-fill"></i> FitKeep</a>
+    <div class="top-nav">
+      <a href="index.html">首页</a>
+      <a href="courses.html">课程</a>
+      <a href="checkin.html">打卡</a>
+      <a href="community.html">社区</a>
+      <a href="pomodoro.html">番茄钟</a>
+    </div>
+  </div>
+</div>
+
+<div class="profile-header">
+  <div class="page-container">
+    <div class="profile-avatar" id="profileIcon">U</div>
+    <div class="profile-name" id="profileName">加载中...</div>
+    <div class="profile-sub">开启健康生活每一天</div>
+    
+    <div class="stats-grid">
+      <div class="stat-item"><h3 id="daysCount">0</h3><span>累计打卡</span></div>
+      <div class="stat-item"><h3 id="pomoCount">0</h3><span>专注周期</span></div>
+      <div class="stat-item"><h3 id="postsCount">0</h3><span>社区动态</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="page-container">
+  <div class="profile-section">
+    <h2><i class="bi bi-gear-fill"></i> 个人中心</h2>
+    <div class="menu-item">
+      <div class="left"><i class="bi bi-person"></i> <span>个人资料</span></div>
+      <div class="right"><i class="bi bi-chevron-right"></i></div>
+    </div>
+    <div class="menu-item">
+      <div class="left"><i class="bi bi-shield-lock"></i> <span>账号安全</span></div>
+      <div class="right"><i class="bi bi-chevron-right"></i></div>
+    </div>
+    <div class="menu-item">
+      <div class="left"><i class="bi bi-envelope"></i> <span>消息通知</span></div>
+      <div class="right"><i class="bi bi-chevron-right"></i></div>
+    </div>
+    <div class="menu-item">
+      <div class="left"><i class="bi bi-patch-question"></i> <span>常见问题</span></div>
+      <div class="right"><i class="bi bi-chevron-right"></i></div>
+    </div>
+  </div>
+
+  <button class="btn-logout" onclick="logout()">退出登录</button>
+</div>
+
+<script>
+  const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
+  const nickname = localStorage.getItem('nickname') || '用户';
+  if (!token) window.location.href = 'login.html';
+  if (role == 1) window.location.href = '/admin/index.html';
+
+  document.getElementById('profileName').textContent = nickname;
+  document.getElementById('profileIcon').textContent = nickname.charAt(0).toUpperCase();
+
+  async function api(url, opts={}) {
+    const res = await fetch(url, {
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      ...opts
+    });
+    return res.json();
+  }
+
+  async function loadData() {
+    try {
+      const [ck, pm, ps] = await Promise.all([
+        api('/api/checkin/status'),
+        api('/api/pomodoro/stats'),
+        api('/api/community/posts')
+      ]);
+      if (ck.code === 200) document.getElementById('daysCount').textContent = ck.data.totalDays;
+      if (pm.code === 200) document.getElementById('pomoCount').textContent = pm.data.totalCycles;
+      if (ps.code === 200) {
+        const myUserId = localStorage.getItem('userId');
+        const count = ps.data.filter(p => p.userId == myUserId).length;
+        document.getElementById('postsCount').textContent = count;
+      }
+    } catch (e) {}
+  }
+
+  function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('nickname');
+    localStorage.removeItem('userId');
+    window.location.href = 'login.html';
+  }
+
+  loadData();
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.server.mapper.PomodoroMapper">
+
+    <resultMap id="PomodoroResultMap" type="PomodoroRecord">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="focusMinutes" column="focus_minutes"/>
+        <result property="breakMinutes" column="break_minutes"/>
+        <result property="cycles" column="cycles"/>
+        <result property="note" column="note"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="findByUserId" resultMap="PomodoroResultMap">
+        SELECT * FROM pomodoro_records WHERE user_id = #{userId} ORDER BY create_time DESC LIMIT 20
+    </select>
+
+    <select id="countCyclesByUserId" resultType="int">
+        SELECT COALESCE(SUM(cycles), 0) FROM pomodoro_records WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO pomodoro_records(user_id, focus_minutes, break_minutes, cycles, note, create_time)
+        VALUES(#{userId}, #{focusMinutes}, #{breakMinutes}, #{cycles}, #{note}, NOW())
+    </insert>
+
+</mapper>

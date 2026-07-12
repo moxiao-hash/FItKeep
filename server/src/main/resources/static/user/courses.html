@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitKeep - 课程</title>
+<link rel="stylesheet" href="./css/bootstrap.min.css">
+<link rel="stylesheet" href="./css/bootstrap-icons.css">
+<style>
+  :root { --primary:#FF6B35; --secondary:#2EC4B6; --dark:#1A1A2E; --bg:#F8F9FA; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter','PingFang SC','Microsoft YaHei',sans-serif; background:var(--bg); line-height:1.6; }
+  
+  .page-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+  .topbar {
+    background: var(--dark); padding: 15px 0; position: sticky; top: 0; z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  .topbar .content { display: flex; justify-content: space-between; align-items: center; }
+  .topbar .brand { color:white; font-size:24px; font-weight:900; display:flex; align-items:center; gap:10px; text-decoration: none; }
+  .topbar .brand i { color:var(--primary); }
+  
+  .top-nav { display: flex; gap: 30px; }
+  .top-nav a { color: rgba(255,255,255,0.8); text-decoration: none; font-weight: 600; font-size: 15px; transition: 0.3s; }
+  .top-nav a:hover, .top-nav a.active { color: var(--primary); }
+
+  .avatar-circle {
+    width:40px; height:40px; background:linear-gradient(135deg,var(--primary),#FF9A5C);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:white; font-size:16px; font-weight:700; cursor:pointer;
+  }
+
+  .filter-bar { padding:20px; display:flex; gap:12px; overflow-x:auto; scrollbar-width:none; background:white; }
+  .filter-bar::-webkit-scrollbar { display:none; }
+  .filter-chip { flex-shrink:0; padding:10px 22px; border-radius:30px; border:2px solid #eee; background:white; font-size:14px; font-weight:700; cursor:pointer; transition:0.3s; color:#666; }
+  .filter-chip.active { border-color:var(--primary); background:var(--primary); color:white; }
+  
+  .course-grid { padding:20px 0; display:grid; gap:25px; }
+  .course-card { background:white; border-radius:20px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.05); cursor:pointer; transition:0.3s; }
+  .course-card:hover { transform:translateY(-5px); box-shadow:0 12px 30px rgba(0,0,0,0.1); }
+  .course-thumb { height:160px; display:flex; align-items:center; justify-content:center; font-size:54px; }
+  .course-body { padding:20px; }
+  .course-body h4 { font-size:16px; font-weight:800; color:var(--dark); margin-bottom:10px; line-height:1.4; }
+  .course-meta { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .badge-tag { padding:4px 12px; border-radius:8px; font-size:12px; font-weight:700; background:#FFF0EB; color:var(--primary); }
+  .badge-tag.teal { background:#E8FAF9; color:var(--secondary); }
+  .badge-tag.grey { background:#F5F5F5; color:#888; }
+  .course-stats { display:flex; gap:15px; font-size:13px; color:#aaa; }
+
+  .bottom-nav { display: none; }
+
+  @media (max-width: 768px) {
+    .top-nav { display: none; }
+    .bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 10px 0; border-top: 1px solid #eee; justify-content: space-around; }
+    .nav-item { text-align: center; color: #999; text-decoration: none; font-size: 12px; }
+    .nav-item.active { color: var(--primary); }
+    .nav-item i { font-size: 20px; display: block; }
+    body { padding-bottom: 70px; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="page-container content">
+    <a href="index.html" class="brand"><i class="bi bi-lightning-charge-fill"></i> FitKeep</a>
+    <div class="top-nav">
+      <a href="index.html">首页</a>
+      <a href="courses.html" class="active">课程</a>
+      <a href="checkin.html">打卡</a>
+      <a href="community.html">社区</a>
+      <a href="pomodoro.html">番茄钟</a>
+    </div>
+    <div class="avatar-circle" id="avatarEl" onclick="location.href='profile.html'">U</div>
+  </div>
+</div>
+
+<div class="page-container" style="margin-top: 30px;">
+  <div class="filter-bar" style="border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+    <div class="filter-chip active" onclick="filterCourses('')" data-cat="">全部课程</div>
+    <div class="filter-chip" onclick="filterCourses('cardio')" data-cat="cardio">有氧心肺</div>
+    <div class="filter-chip" onclick="filterCourses('strength')" data-cat="strength">力量塑造</div>
+    <div class="filter-chip" onclick="filterCourses('yoga')" data-cat="yoga">身心瑜伽</div>
+    <div class="filter-chip" onclick="filterCourses('hiit')" data-cat="hiit">HIIT燃脂</div>
+  </div>
+
+  <div class="course-grid" id="courseGrid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));"></div>
+</div>
+
+<nav class="bottom-nav">
+  <a class="nav-item" href="index.html"><i class="bi bi-house-fill"></i><span>首页</span></a>
+  <a class="nav-item active" href="courses.html"><i class="bi bi-play-circle-fill"></i><span>课程</span></a>
+  <a class="nav-item" href="checkin.html"><i class="bi bi-calendar2-check"></i><span>打卡</span></a>
+  <a class="nav-item" href="community.html"><i class="bi bi-people"></i><span>社区</span></a>
+  <a class="nav-item" href="pomodoro.html"><i class="bi bi-stopwatch"></i><span>番茄钟</span></a>
+</nav>
+
+<script>
+  const token = localStorage.getItem('token');
+  const nickname = localStorage.getItem('nickname')||'U';
+  if (!token) window.location.href = 'login.html';
+  document.getElementById('avatarEl').textContent = nickname.charAt(0).toUpperCase();
+
+  const catEmoji = {cardio:'🏃',strength:'💪',yoga:'🧘',hiit:'🔥',default:'🏋️'};
+  const catBg = {cardio:'#FFF0F0',strength:'#FFF8F0',yoga:'#F0FFF8',hiit:'#FFF0EB',default:'#F0F4FF'};
+  const diffLabel = {1:'入门',2:'进阶',3:'高阶'};
+  let allCourses = [];
+
+  async function loadCourses() {
+    try {
+      const res = await fetch('/api/courses/list', { headers:{'Authorization':'Bearer '+token} });
+      const data = await res.json();
+      if (data.code === 200) { allCourses = data.data; renderCourses(allCourses); }
+    } catch(e) {}
+  }
+
+  function renderCourses(list) {
+    const el = document.getElementById('courseGrid');
+    if (!list.length) {
+      el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><i class="bi bi-collection-play"></i><p>暂无课程</p></div>';
+      return;
+    }
+    el.innerHTML = list.map(c => `
+      <div class="course-card" onclick="location.href='course-detail.html?id=${c.id}'">
+        <div class="course-thumb" style="background:${c.cover ? `url('${c.cover}') center/cover` : catBg[c.category]||catBg.default}">
+          ${!c.cover ? (catEmoji[c.category]||catEmoji.default) : ''}
+        </div>
+        <div class="course-body">
+          <h4>${c.title}</h4>
+          <div class="course-meta">
+            <span class="badge-tag">${c.category||'综合'}</span>
+            <span class="badge-tag teal">${diffLabel[c.difficulty]||'入门'}</span>
+            <span class="badge-tag grey">${c.duration||0}分钟</span>
+          </div>
+          <div class="course-stats">
+            <span><i class="bi bi-eye"></i> ${c.viewCount||0}</span>
+            <span><i class="bi bi-people"></i> ${c.enrollCount||0}人学习</span>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function filterCourses(cat) {
+    document.querySelectorAll('.filter-chip').forEach(el => el.classList.toggle('active', el.dataset.cat === cat));
+    const filtered = cat ? allCourses.filter(c => c.category === cat) : allCourses;
+    renderCourses(filtered);
+  }
+
+  loadCourses();
+</script>
+</body>
+</html>

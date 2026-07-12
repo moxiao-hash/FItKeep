@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitKeep - 课程详情</title>
+<link rel="stylesheet" href="./css/bootstrap.min.css">
+<link rel="stylesheet" href="./css/bootstrap-icons.css">
+<style>
+  :root { --primary:#FF6B35; --secondary:#2EC4B6; --dark:#1A1A2E; --bg:#F5F5F5; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'PingFang SC','Microsoft YaHei',sans-serif; background:var(--bg); padding-bottom:40px; }
+  .topbar { background:linear-gradient(135deg,var(--dark),#0F3460); padding:16px 20px; display:flex; align-items:center; gap:12px; position:sticky; top:0; z-index:100; }
+  .topbar h1 { color:white; font-size:18px; font-weight:900; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .topbar a { color:rgba(255,255,255,0.7); font-size:20px; }
+  .course-header { background:linear-gradient(135deg,var(--dark),#0F3460); padding:24px 20px 32px; color:white; }
+  .course-header .emoji { font-size:56px; margin-bottom:12px; }
+  .course-header h2 { font-size:22px; font-weight:900; margin-bottom:8px; }
+  .course-header p { color:rgba(255,255,255,0.65); font-size:14px; line-height:1.6; margin-bottom:16px; }
+  .meta-tags { display:flex; gap:8px; flex-wrap:wrap; }
+  .badge-tag { padding:5px 12px; border-radius:20px; font-size:12px; font-weight:700; background:rgba(255,255,255,0.15); color:white; }
+  .section { padding:20px 16px; }
+  .section-title { font-size:16px; font-weight:800; color:var(--dark); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .section-title i { color:var(--primary); }
+  .teacher-card { background:white; border-radius:16px; padding:16px; box-shadow:0 2px 12px rgba(0,0,0,0.06); display:flex; align-items:center; gap:14px; }
+  .teacher-avatar { width:52px; height:52px; background:linear-gradient(135deg,var(--primary),#FF9A5C); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:22px; flex-shrink:0; }
+  .teacher-info h4 { font-size:15px; font-weight:800; color:var(--dark); margin-bottom:4px; }
+  .teacher-info p { font-size:13px; color:#888; }
+  .video-list { display:flex; flex-direction:column; gap:12px; }
+  .video-item { background:white; border-radius:16px; padding:16px; box-shadow:0 2px 12px rgba(0,0,0,0.06); cursor:pointer; transition:all 0.2s; }
+  .video-item:hover { transform:translateX(4px); box-shadow:0 4px 20px rgba(255,107,53,0.15); }
+  .video-item.active { border-left:4px solid var(--primary); }
+  .video-item-header { display:flex; align-items:center; gap:12px; margin-bottom:0; }
+  .video-num { width:32px; height:32px; background:var(--bg); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; color:var(--dark); flex-shrink:0; }
+  .video-item.active .video-num { background:var(--primary); color:white; }
+  .video-title { flex:1; font-size:14px; font-weight:700; color:var(--dark); }
+  .video-dur { font-size:12px; color:#aaa; }
+  .play-icon { color:var(--primary); font-size:18px; }
+  .video-player-wrap { background:white; border-radius:20px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.1); margin-bottom:4px; }
+  video { width:100%; max-height:260px; background:#000; display:block; }
+  .video-player-title { padding:14px 16px; }
+  .video-player-title h3 { font-size:15px; font-weight:800; color:var(--dark); }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a href="courses.html"><i class="bi bi-arrow-left"></i></a>
+  <h1 id="pageTitle">课程详情</h1>
+</div>
+
+<div class="course-header" id="courseHeader">
+  <div class="emoji" id="courseEmoji">🏋️</div>
+  <h2 id="courseTitle">加载中...</h2>
+  <p id="courseDesc"></p>
+  <div class="meta-tags" id="metaTags"></div>
+</div>
+
+<div class="section">
+  <div class="section-title"><i class="bi bi-person-circle"></i>授课教师</div>
+  <div class="teacher-card">
+    <div class="teacher-avatar"><i class="bi bi-person"></i></div>
+    <div class="teacher-info">
+      <h4 id="teacherName">教练</h4>
+      <p>专业健身教练</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="playerSection" style="display:none">
+  <div class="section-title"><i class="bi bi-play-circle-fill"></i>正在播放</div>
+  <div class="video-player-wrap">
+    <video id="videoPlayer" controls></video>
+    <div class="video-player-title"><h3 id="nowPlayingTitle"></h3></div>
+  </div>
+</div>
+
+<!-- Syllabus Section Removed -->
+
+<script>
+  const token = localStorage.getItem('token');
+  if (!token) window.location.href = '/user/login.html';
+  const params = new URLSearchParams(location.search);
+  const courseId = params.get('id');
+  const catEmoji = {cardio:'🏃',strength:'💪',yoga:'🧘',hiit:'🔥',default:'🏋️'};
+  const catBg = {cardio:'#FFF0F0',strength:'#FFF8F0',yoga:'#F0FFF8',hiit:'#FFF0EB',default:'#F0F4FF'};
+  const diffLabel = {1:'入门',2:'进阶',3:'高阶'};
+  let videos = [];
+
+  async function loadDetail() {
+    try {
+      const res = await fetch('/api/courses/detail/'+courseId, {headers:{'Authorization':'Bearer '+token}});
+      const data = await res.json();
+      if (data.code !== 200) return;
+      const {course, videos: vs} = data.data;
+      videos = vs;
+      document.getElementById('pageTitle').textContent = course.title;
+      document.getElementById('courseTitle').textContent = course.title;
+      document.getElementById('courseDesc').textContent = course.description || '';
+      document.getElementById('courseEmoji').textContent = catEmoji[course.category] || catEmoji.default;
+      document.getElementById('courseEmoji').style.background = course.cover ? `url('${course.cover}') center/cover` : (catBg[course.category] || catBg.default);
+      if (course.cover) document.getElementById('courseEmoji').textContent = '';
+      document.getElementById('teacherName').textContent = course.teacherName || '专业教练';
+      document.getElementById('metaTags').innerHTML = `
+        <span class="badge-tag">${course.category||'综合'}</span>
+        <span class="badge-tag">${diffLabel[course.difficulty]||'入门'}</span>
+        <span class="badge-tag">${course.duration||0} 分钟</span>
+        <span class="badge-tag"><i class="bi bi-eye"></i> ${course.viewCount||0}</span>`;
+      
+      if (vs && vs.length > 0) {
+        const v = vs[0];
+        document.getElementById('playerSection').style.display = 'block';
+        document.getElementById('videoPlayer').src = v.url;
+        document.getElementById('nowPlayingTitle').textContent = '进入学习：' + v.title;
+      }
+    } catch(e) {}
+  }
+
+  if (courseId) loadDetail(); else window.location.href='courses.html';
+</script>
+</body>
+</html>

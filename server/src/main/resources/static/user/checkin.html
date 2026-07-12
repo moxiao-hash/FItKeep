@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitKeep - 打卡</title>
+<link rel="stylesheet" href="./css/bootstrap.min.css">
+<link rel="stylesheet" href="./css/bootstrap-icons.css">
+<style>
+  :root { --primary:#FF6B35; --secondary:#2EC4B6; --dark:#1A1A2E; --bg:#F8F9FA; --card-bg: #FFFFFF; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter','PingFang SC','Microsoft YaHei',sans-serif; background:var(--bg); color: var(--dark); line-height: 1.6; padding-bottom: 80px; }
+  
+  .page-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+  .topbar {
+    background: var(--dark); padding: 15px 0; position: sticky; top: 0; z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  .topbar .content { display: flex; justify-content: space-between; align-items: center; }
+  .topbar .brand { color:white; font-size:24px; font-weight:900; display:flex; align-items:center; gap:10px; text-decoration: none; }
+  .topbar .brand i { color:var(--primary); }
+  
+  .top-nav { display: flex; gap: 30px; }
+  .top-nav a { color: rgba(255,255,255,0.8); text-decoration: none; font-weight: 600; font-size: 15px; transition: 0.3s; }
+  .top-nav a:hover, .top-nav a.active { color: var(--primary); }
+
+  .avatar-circle {
+    width:40px; height:40px; background:linear-gradient(135deg,var(--primary),#FF9A5C);
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:white; font-size:16px; font-weight:700; cursor:pointer;
+  }
+
+  .hero { background:linear-gradient(135deg,var(--dark),#0F3460); padding:40px 20px; color:white; text-align:center; border-radius: 0 0 40px 40px; margin-bottom: 30px; }
+  .streak-circle { width:120px; height:120px; border-radius:50%; background:linear-gradient(135deg,var(--primary),#FF9A5C); display:flex; flex-direction:column; align-items:center; justify-content:center; margin:0 auto 20px; box-shadow:0 10px 30px rgba(255,107,53,0.4); }
+  .streak-circle .num { font-size:42px; font-weight:900; color:white; line-height:1; }
+  .streak-circle .lbl { font-size:12px; color:rgba(255,255,255,0.8); margin-top: 5px; }
+  .hero p { color:rgba(255,255,255,0.7); font-size:15px; }
+  
+  .section { margin-bottom: 30px; }
+  .section-title { font-size:18px; font-weight:800; color:var(--dark); margin-bottom:15px; display:flex; align-items:center; gap:10px; }
+  .section-title i { color:var(--primary); }
+  
+  .checkin-form { background:white; border-radius:24px; padding:25px; box-shadow:0 4px 15px rgba(0,0,0,0.05); }
+  .form-label { font-size:14px; font-weight:700; color:#555; margin-bottom:10px; display:block; }
+  .form-ctrl { width:100%; padding:14px; border:2px solid #f0f0f0; border-radius:14px; font-size:15px; outline:none; transition:0.3s; font-family:inherit; }
+  .form-ctrl:focus { border-color:var(--primary); background: #fdfdfd; }
+  .form-group { margin-bottom:20px; }
+  .duration-row { display:flex; align-items:center; gap:12px; }
+  .duration-row input { flex:1; }
+  .duration-row span { font-size:14px; color:#999; }
+  
+  .btn-submit { width:100%; padding:16px; background:linear-gradient(135deg,var(--primary),#FF9A5C); border:none; border-radius:14px; color:white; font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 4px 15px rgba(255,107,53,0.3); transition:0.3s; }
+  .btn-submit:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(255,107,53,0.4); }
+  .btn-submit:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+  
+  .checkin-item { background:white; border-radius:20px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.05); margin-bottom:15px; border-left: 5px solid var(--primary); }
+  .checkin-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .checkin-date { font-size:14px; font-weight:700; color:var(--dark); }
+  .checkin-dur { font-size:12px; color:var(--primary); background:#FFF0EB; padding:3px 10px; border-radius:6px; font-weight:700; }
+  .checkin-content { font-size:14px; color:#666; line-height:1.6; }
+  
+  .done-badge { background:linear-gradient(135deg,var(--secondary),#20A69E); color:white; padding:12px; border-radius:15px; font-size:14px; font-weight:700; text-align:center; margin-bottom:20px; box-shadow: 0 4px 15px rgba(46, 196, 182, 0.2); }
+  
+  @media (max-width: 768px) {
+    .top-nav { display: none; }
+  }
+  .toast { position:fixed; top:80px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); color:white; padding:12px 30px; border-radius:30px; font-size:14px; z-index:9999; display:none; backdrop-filter: blur(5px); }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="page-container content">
+    <a href="index.html" class="brand"><i class="bi bi-lightning-charge-fill"></i> FitKeep</a>
+    <div class="top-nav">
+      <a href="index.html">首页</a>
+      <a href="courses.html">课程</a>
+      <a href="checkin.html" class="active">打卡</a>
+      <a href="community.html">社区</a>
+      <a href="pomodoro.html">番茄钟</a>
+    </div>
+    <div class="avatar-circle" id="avatarEl" onclick="location.href='profile.html'">U</div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="page-container">
+    <div class="streak-circle"><div class="num" id="streakNum">0</div><div class="lbl">累计天数</div></div>
+    <p id="heroMsg">今天还没打卡，快来记录吧！</p>
+  </div>
+</div>
+
+<div class="page-container">
+  <div class="section">
+    <div class="section-title"><i class="bi bi-fire"></i>今日打卡</div>
+    <div id="doneMsg" class="done-badge" style="display:none">✓ 今日已完成打卡，继续保持！</div>
+    <div class="checkin-form" id="checkinForm">
+      <div class="form-group">
+        <label class="form-label">打卡感言</label>
+        <textarea class="form-ctrl" id="content" rows="3" placeholder="记录今天的训练内容或心得..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">运动时长</label>
+        <div class="duration-row">
+          <input type="number" class="form-ctrl" id="duration" placeholder="30" min="1" max="300">
+          <span>分钟</span>
+        </div>
+      </div>
+      <button class="btn-submit" id="submitBtn" onclick="doCheckIn()"><i class="bi bi-check2-circle me-2"></i>立即打卡</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><i class="bi bi-clock-history"></i>打卡记录</div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const token = localStorage.getItem('token');
+  if (!token) window.location.href = '/user/login.html';
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 2500);
+  }
+
+  async function api(url, opts={}) {
+    const res = await fetch(url, { headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'}, ...opts });
+    return res.json();
+  }
+
+  async function loadStatus() {
+    try {
+      const data = await api('/api/checkin/status');
+      if (data.code === 200) {
+        document.getElementById('streakNum').textContent = data.data.totalDays;
+        if (data.data.checkedToday) {
+          document.getElementById('heroMsg').textContent = '今日已打卡，坚持就是胜利！';
+          document.getElementById('doneMsg').style.display = 'block';
+          document.getElementById('checkinForm').style.display = 'none';
+        }
+      }
+    } catch(e) {}
+  }
+
+  async function loadHistory() {
+    try {
+      const data = await api('/api/checkin/my');
+      if (data.code !== 200) return;
+      const el = document.getElementById('historyList');
+      if (!data.data.length) { el.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px">暂无打卡记录</p>'; return; }
+      el.innerHTML = data.data.map(c => `
+        <div class="checkin-item">
+          <div class="checkin-header">
+            <span class="checkin-date"><i class="bi bi-calendar3 me-1"></i>${c.checkDate}</span>
+            <span class="checkin-dur">${c.duration ? c.duration+'分钟' : ''}</span>
+          </div>
+          <div class="checkin-content">${c.content || '完成今日训练 💪'}</div>
+        </div>`).join('');
+    } catch(e) {}
+  }
+
+  async function doCheckIn() {
+    const content = document.getElementById('content').value.trim();
+    const duration = parseInt(document.getElementById('duration').value) || 0;
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    try {
+      const data = await api('/api/checkin/do', { method:'POST', body: JSON.stringify({content, duration}) });
+      if (data.code === 200) {
+        showToast('打卡成功！');
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        showToast(data.message || '打卡失败');
+        btn.disabled = false;
+      }
+    } catch(e) { showToast('网络错误'); btn.disabled = false; }
+  }
+
+  const nickname = localStorage.getItem('nickname') || 'U';
+  document.getElementById('avatarEl').textContent = nickname.charAt(0).toUpperCase();
+
+  loadStatus(); loadHistory();
+</script>
+</body>
+</html>
