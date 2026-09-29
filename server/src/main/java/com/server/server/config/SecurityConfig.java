@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/courses/list", "/api/courses/detail/**", "/api/courses/videos/**").permitAll()
                 .requestMatchers("/api/community/posts").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/community/post/**").permitAll()
+                .requestMatchers("/api/checkin/all").hasRole("ADMIN")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
@@ -53,10 +54,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedOriginPatterns(List.of(
+            "http://localhost:[*]",
+            "http://127.0.0.1:[*]",
+            "http://localhost",
+            "http://127.0.0.1"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;

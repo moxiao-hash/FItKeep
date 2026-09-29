@@ -46,6 +46,17 @@ public class CommunityService {
         postMapper.deleteById(id);
     }
 
+    public void deletePostWithPermission(Long id, Long currentUserId, boolean isAdmin) {
+        Post post = postMapper.findById(id);
+        if (post == null) {
+            throw new RuntimeException("帖子不存在");
+        }
+        if (!isAdmin && (post.getUserId() == null || !post.getUserId().equals(currentUserId))) {
+            throw new RuntimeException("无权删除他人帖子");
+        }
+        postMapper.deleteById(id);
+    }
+
     public void updatePostStatus(Long id, Integer status) {
         Post post = new Post();
         post.setId(id);

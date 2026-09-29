@@ -92,9 +92,13 @@ CREATE TABLE IF NOT EXISTS pomodoro_records (
     create_time DATETIME
 );
 
--- 初始管理员账号 (密码: admin123)
-INSERT IGNORE INTO users(username, password, nickname, role, status, create_time, update_time)
-VALUES('admin', '$2a$10$vI8aWBnW3fID.ZQ4/zo1G.q1lRps.9cGLcZEiGDMVr5yUP1KUOYTa', '管理员', 1, 1, NOW(), NOW());
+-- 管理员账号安全设置说明：
+-- 为防范预置弱口令与固定凭据泄露，新装库默认不再包含可直接登录的默认管理员账号。
+-- 部署管理员必须在部署上线时通过安全生成的随机高强度密码（经 BCrypt 哈希）单独录入管理员账号，
+-- 或在首次运维配置流程中进行初始化，切勿在 SQL 脚本中使用公开固定哈希。
+-- 示例（请替换真实用户名与高强度BCrypt哈希值）：
+-- INSERT INTO users(username, password, nickname, role, status, create_time, update_time)
+-- VALUES('secure_admin', '<BCRYPT_HASH_GENERATED_AT_DEPLOYMENT>', '系统管理员', 1, 1, NOW(), NOW());
 
 -- 示例课程数据
 INSERT IGNORE INTO courses(id, title, description, cover, category, difficulty, duration, teacher_name, status, view_count, enroll_count, create_time, update_time) VALUES

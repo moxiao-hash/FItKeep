@@ -23,6 +23,9 @@ public class CommunityController {
     @GetMapping("/post/{id}")
     public Result<?> post(@PathVariable Long id) {
         var post = communityService.getPostById(id);
+        if (post == null || post.getStatus() == null || post.getStatus() != 1) {
+            return Result.error("帖子不存在或已被隐藏");
+        }
         var comments = communityService.getComments(id);
         return Result.success(Map.of("post", post, "comments", comments));
     }
@@ -57,7 +60,17 @@ public class CommunityController {
 
     @DeleteMapping("/post/{id}")
     public Result<?> deletePost(@PathVariable Long id, Authentication auth) {
-        communityService.deletePost(id);
-        return Result.success();
+        if (auth == null || auth.getPrincipal() == null) {
+            return Result.error("未登录或身份凭证无效");
+        }
+        try {
+            Long userId = (Long) auth.getPrincipal();
+            boolean isAdmin = auth.getAuthorities() != null && auth.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+            communityService.deletePostWithPermission(id, userId, isAdmin);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
     }
 }

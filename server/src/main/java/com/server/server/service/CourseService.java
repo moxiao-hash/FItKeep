@@ -28,7 +28,9 @@ public class CourseService {
 
     public Map<String, Object> getCourseDetail(Long id) {
         Course course = courseMapper.findById(id);
-        if (course == null) throw new RuntimeException("课程不存在");
+        if (course == null || course.getStatus() == null || course.getStatus() != 1) {
+            throw new RuntimeException("课程不存在或未发布");
+        }
         courseMapper.incrementViewCount(id);
         List<Video> videos = videoMapper.findByCourseId(id);
         Map<String, Object> res = new HashMap<>();
@@ -60,6 +62,10 @@ public class CourseService {
     }
 
     public List<Video> getVideosByCourse(Long courseId) {
+        Course course = courseMapper.findById(courseId);
+        if (course == null || course.getStatus() == null || course.getStatus() != 1) {
+            throw new RuntimeException("课程不存在或未发布");
+        }
         return videoMapper.findByCourseId(courseId);
     }
 

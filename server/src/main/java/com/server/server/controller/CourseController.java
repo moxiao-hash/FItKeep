@@ -33,6 +33,10 @@ public class CourseController {
 
     @GetMapping("/videos/{courseId}")
     public Result<?> videos(@PathVariable Long courseId) {
-        return Result.success(courseService.getVideosByCourse(courseId));
+        try {
+            return Result.success(courseService.getVideosByCourse(courseId));
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
     }
 }

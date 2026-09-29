@@ -44,7 +44,12 @@ public class CheckInController {
     }
 
     @GetMapping("/all")
-    public Result<?> allCheckIns() {
+    public Result<?> allCheckIns(Authentication auth) {
+        boolean isAdmin = auth != null && auth.getAuthorities() != null && auth.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+        if (!isAdmin) {
+            return Result.error("无权查看全部用户打卡记录");
+        }
         return Result.success(checkInService.getAllCheckIns());
     }
 }

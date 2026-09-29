@@ -1,5 +1,6 @@
 package com.server.server.controller;
 
+import com.server.server.dto.UserAdminDTO;
 import com.server.server.entity.Course;
 import com.server.server.entity.User;
 import com.server.server.entity.Video;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -35,7 +37,10 @@ public class AdminController {
     // User management
     @GetMapping("/users")
     public Result<?> users() {
-        return Result.success(userService.findAll());
+        List<UserAdminDTO> userDTOs = userService.findAll().stream()
+                .map(UserAdminDTO::fromEntity)
+                .toList();
+        return Result.success(userDTOs);
     }
 
     @PutMapping("/user/{id}/status")
