@@ -77,7 +77,7 @@ public class AdminController {
     @PostMapping("/course/upload-cover")
     public Result<?> uploadCourseCover(@RequestParam("file") MultipartFile file) {
         try {
-            String url = fileService.uploadFile(file);
+            String url = fileService.uploadImage(file);
             return Result.success(url);
         } catch (Exception e) {
             return Result.error(e.getMessage());
@@ -110,7 +110,7 @@ public class AdminController {
     @PostMapping("/video/upload")
     public Result<?> uploadVideo(@RequestParam("file") MultipartFile file) {
         try {
-            String url = fileService.uploadFile(file);
+            String url = fileService.uploadVideo(file);
             return Result.success(url);
         } catch (Exception e) {
             return Result.error(e.getMessage());

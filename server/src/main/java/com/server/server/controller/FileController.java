@@ -16,7 +16,7 @@ public class FileController {
     @PostMapping("/upload")
     public Result<?> upload(@RequestParam("file") MultipartFile file) {
         try {
-            String url = fileService.uploadFile(file);
+            String url = fileService.uploadImage(file);
             return Result.success(url);
         } catch (Exception e) {
             return Result.error(e.getMessage());

@@ -20,6 +20,11 @@
         SELECT * FROM videos WHERE id = #{id}
     </select>
 
+    <select id="countPublishedByUrl" resultType="int">
+        SELECT COUNT(*) FROM videos v JOIN courses c ON v.course_id = c.id
+        WHERE v.url = #{url} AND c.status = 1
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO videos(course_id, title, url, duration, sort_order, create_time)
         VALUES(#{courseId}, #{title}, #{url}, #{duration}, #{sortOrder}, NOW())

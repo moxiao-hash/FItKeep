@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -52,7 +53,15 @@ public class FileService {
         return userDir;
     }
 
-    public String uploadFile(MultipartFile file) throws IOException {
+    public String uploadImage(MultipartFile file) throws IOException {
+        return upload(file, false);
+    }
+
+    public String uploadVideo(MultipartFile file) throws IOException {
+        return upload(file, true);
+    }
+
+    private String upload(MultipartFile file, boolean video) throws IOException {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("上传文件不能为空");
         }
@@ -68,19 +77,24 @@ public class FileService {
             ext = originalName.substring(dotIndex).toLowerCase(Locale.ROOT);
         }
 
-        boolean isImage = ALLOWED_IMAGE_EXTENSIONS.contains(ext);
-        boolean isVideo = ALLOWED_VIDEO_EXTENSIONS.contains(ext);
-
-        if (!isImage && !isVideo) {
-            throw new IllegalArgumentException("不支持的文件类型，仅允许上传常用图片或视频文件");
+        if (!(video ? ALLOWED_VIDEO_EXTENSIONS : ALLOWED_IMAGE_EXTENSIONS).contains(ext)) {
+            throw new IllegalArgumentException("此接口不支持该文件类型");
         }
 
         long fileSize = file.getSize();
-        if (isImage && fileSize > MAX_IMAGE_SIZE) {
+        if (!video && fileSize > MAX_IMAGE_SIZE) {
             throw new IllegalArgumentException("图片文件大小超出限制（最大 10MB）");
         }
-        if (isVideo && fileSize > MAX_VIDEO_SIZE) {
+        if (video && fileSize > MAX_VIDEO_SIZE) {
             throw new IllegalArgumentException("视频文件大小超出限制（最大 100MB）");
+        }
+
+        byte[] header;
+        try (var input = file.getInputStream()) {
+            header = input.readNBytes(16);
+        }
+        if (!matchesContent(ext, file.getContentType(), header)) {
+            throw new IllegalArgumentException("文件内容与类型不符");
         }
 
         String dir = getUploadDir();
@@ -90,11 +104,50 @@ public class FileService {
         String filename = UUID.randomUUID().toString().replace("-", "") + ext;
         File targetFile = new File(uploadDir, filename);
 
-        if (!targetFile.getCanonicalPath().startsWith(uploadDir.getCanonicalPath())) {
+        if (!targetFile.getCanonicalFile().toPath().startsWith(uploadDir.getCanonicalFile().toPath())) {
             throw new SecurityException("非法的文件保存路径");
         }
 
         file.transferTo(targetFile);
         return "/uploads/" + filename;
+    }
+
+    private boolean matchesContent(String ext, String contentType, byte[] bytes) {
+        if (contentType == null) return false;
+        return switch (ext) {
+            case ".png" -> "image/png".equals(contentType) && starts(bytes, 0x89, 'P', 'N', 'G', 13, 10, 26, 10);
+            case ".jpg", ".jpeg" -> "image/jpeg".equals(contentType) && starts(bytes, 0xff, 0xd8, 0xff);
+            case ".gif" -> "image/gif".equals(contentType) &&
+                    (starts(bytes, 'G', 'I', 'F', '8', '7', 'a') || starts(bytes, 'G', 'I', 'F', '8', '9', 'a'));
+            case ".webp" -> "image/webp".equals(contentType) && starts(bytes, 'R', 'I', 'F', 'F') &&
+                    at(bytes, 8, 'W', 'E', 'B', 'P');
+            case ".mp4" -> "video/mp4".equals(contentType) && at(bytes, 4, 'f', 't', 'y', 'p');
+            case ".mov" -> ("video/quicktime".equals(contentType) || "video/mp4".equals(contentType)) &&
+                    at(bytes, 4, 'f', 't', 'y', 'p') && at(bytes, 8, 'q', 't', ' ', ' ');
+            case ".webm" -> "video/webm".equals(contentType) && starts(bytes, 0x1a, 0x45, 0xdf, 0xa3);
+            default -> false;
+        };
+    }
+
+    private boolean starts(byte[] bytes, int... signature) {
+        return at(bytes, 0, signature);
+    }
+
+    private boolean at(byte[] bytes, int offset, int... signature) {
+        if (bytes.length < offset + signature.length) return false;
+        for (int i = 0; i < signature.length; i++) {
+            if ((bytes[offset + i] & 0xff) != signature[i]) return false;
+        }
+        return true;
+    }
+
+    public Path resolveUpload(String filename) throws IOException {
+        if (filename == null || !filename.matches("[0-9a-f]{32}\\.(?:jpg|jpeg|png|gif|webp|mp4|webm|mov)")) {
+            throw new IllegalArgumentException("无效文件名");
+        }
+        Path root = Path.of(getUploadDir()).toRealPath();
+        Path path = root.resolve(filename).toRealPath();
+        if (!path.startsWith(root)) throw new IllegalArgumentException("无效文件名");
+        return path;
     }
 }

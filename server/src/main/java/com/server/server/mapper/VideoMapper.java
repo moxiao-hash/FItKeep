@@ -9,6 +9,7 @@ import java.util.List;
 public interface VideoMapper {
     List<Video> findByCourseId(@Param("courseId") Long courseId);
     Video findById(@Param("id") Long id);
+    int countPublishedByUrl(@Param("url") String url);
     int insert(Video video);
     int update(Video video);
     int deleteById(@Param("id") Long id);
