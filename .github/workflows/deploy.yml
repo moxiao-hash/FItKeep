@@ -1,0 +1,56 @@
+name: Deploy FitKeep
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fitkeep-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: server/pom.xml
+      - name: Build and test
+        run: mvn -B -ntp -f server/pom.xml verify
+      - name: Deploy verified JAR
+        env:
+          FITKEEP_DEPLOY_KEY: ${{ secrets.FITKEEP_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$FITKEEP_DEPLOY_KEY"
+          install -m 700 -d "$HOME/.ssh"
+          key_file="$(mktemp "$HOME/.ssh/fitkeep-key.XXXXXX")"
+          trap 'rm -f "$key_file"' EXIT
+          chmod 600 "$key_file"
+          printf '%s\n' "$FITKEEP_DEPLOY_KEY" > "$key_file"
+          cat > "$HOME/.ssh/known_hosts" <<'HOST_KEY'
+          8.163.98.5 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAQKAwOillKGdEdbEcpX6f9fseNQVMCuHhHIk5f1YxOn
+          HOST_KEY
+          chmod 600 "$HOME/.ssh/known_hosts"
+          timeout 780s ssh -T \
+            -i "$key_file" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -o ConnectTimeout=10 \
+            fitkeep-deploy@8.163.98.5 deploy \
+            < server/target/server-0.0.1-SNAPSHOT.jar

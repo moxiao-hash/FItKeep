@@ -21,3 +21,4 @@ server/uploads/
 .env
 .env.*
 *.local.properties
+deploy/application-prod.properties
