@@ -1,0 +1,14 @@
+.fk-agent-toggle{position:fixed;right:24px;bottom:92px;z-index:1100;border:0;border-radius:50px;padding:12px 18px;background:#1a1a2e;color:white;box-shadow:0 8px 24px #0003;cursor:pointer;font-weight:700}
+.fk-agent-panel{position:fixed;right:24px;bottom:150px;z-index:1100;width:min(370px,calc(100vw - 32px));height:480px;max-height:calc(100vh - 175px);display:none;flex-direction:column;background:white;border-radius:16px;box-shadow:0 14px 42px #0003;overflow:hidden}
+.fk-agent-panel.open{display:flex}
+.fk-agent-head{background:#1a1a2e;color:white;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;font-weight:700}
+.fk-agent-head button{border:0;background:transparent;color:white;font-size:24px;cursor:pointer}
+.fk-agent-log{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.fk-agent-bubble{white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f3f5;padding:10px 12px;border-radius:12px;max-width:90%;font-size:14px}
+.fk-agent-bubble.user{align-self:flex-end;background:#fff0e8}
+.fk-agent-confirm{align-self:flex-start;border:0;border-radius:9px;background:#ff6b35;color:white;padding:9px 12px;cursor:pointer}
+.fk-agent-form{display:flex;border-top:1px solid #eee;padding:10px;gap:8px}
+.fk-agent-form input{flex:1;min-width:0;border:1px solid #ddd;border-radius:8px;padding:9px}
+.fk-agent-form button{border:0;border-radius:8px;background:#ff6b35;color:white;padding:0 14px;cursor:pointer}
+.fk-agent-form button:disabled,.fk-agent-confirm:disabled{opacity:.55;cursor:default}
+@media(max-width:480px){.fk-agent-toggle{right:16px;bottom:84px}.fk-agent-panel{right:16px;bottom:140px}}
